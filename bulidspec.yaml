@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: us-east-1
+    ECR_REPO_NAME: my-app-repo         # Replace with your ECR repo name
+    ECS_CLUSTER: app-cluster           # Replace with ECS cluster name
+    ECS_SERVICE: frontend-service      # Replace with ECS service name
+    IMAGE_TAG: latest
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging into Amazon ECR...
+      - REPO_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
+      - echo REPO_URI=$REPO_URI
+
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t $REPO_URI:$IMAGE_TAG .
+      - docker push $REPO_URI:$IMAGE_TAG
+
+  post_build:
+    commands:
+      - echo Writing image definitions file...
+      - printf '[{\"name\":\"frontend\",\"imageUri\":\"%s\"}]' $REPO_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
