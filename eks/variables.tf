@@ -10,8 +10,10 @@ variable "cluster_name" {
   default     = "demo-fargate"
 }
 
+
 variable "excluded_azs" {
   description = "List of availability zones that should not be used for control plane subnets"
   type        = list(string)
   default     = ["us-east-1e"]
 }
+

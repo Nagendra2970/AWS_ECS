@@ -20,6 +20,7 @@ data "aws_subnets" "default" {
     name   = "availability-zone"
     values = local.supported_azs
   }
+
 }
 
 # IAM role for the EKS cluster
@@ -90,6 +91,7 @@ resource "aws_eks_fargate_profile" "default" {
   fargate_profile_name   = "default"
   pod_execution_role_arn = aws_iam_role.fargate_pod_execution.arn
   subnet_ids             = data.aws_subnets.default.ids
+
 
   selector {
     namespace = "default"
