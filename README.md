@@ -75,3 +75,12 @@ https://github.com/facebook/create-react-app
 **ReactJS** : Refer to https://reactjs.org/ to understand the concepts of ReactJS
 
 **React Bootstrap** : Refer to https://react-bootstrap.github.io/getting-started/introduction/ to understand how to use React Bootstrap
+
+## Angular + Node.js CRUD Example
+
+A minimal CRUD application built with Node.js and Angular is available in the
+`crud-app` directory. The backend exposes REST endpoints with Express and the
+frontend communicates with them using Angular's HttpClient.
+
+Refer to `crud-app/backend/README.md` and `crud-app/frontend/README.md` for
+instructions on running each part.
