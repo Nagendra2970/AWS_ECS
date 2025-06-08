@@ -4,8 +4,23 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnet_ids" "default" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_availability_zones" "available" {}
+
+locals {
+  supported_azs = [for az in data.aws_availability_zones.available.names : az if !(contains(var.excluded_azs, az))]
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = local.supported_azs
+  }
+
 }
 
 # IAM role for the EKS cluster
@@ -61,7 +76,7 @@ resource "aws_eks_cluster" "this" {
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
-    subnet_ids = data.aws_subnet_ids.default.ids
+    subnet_ids = data.aws_subnets.default.ids
   }
 
   depends_on = [
@@ -75,7 +90,8 @@ resource "aws_eks_fargate_profile" "default" {
   cluster_name           = aws_eks_cluster.this.name
   fargate_profile_name   = "default"
   pod_execution_role_arn = aws_iam_role.fargate_pod_execution.arn
-  subnet_ids             = data.aws_subnet_ids.default.ids
+  subnet_ids             = data.aws_subnets.default.ids
+
 
   selector {
     namespace = "default"
